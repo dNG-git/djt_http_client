@@ -1,0 +1,28 @@
+{
+    "defaultSeverity": "warning",
+
+    // TypeScript coding guidelines
+    "extends": [ "tslint:recommended" ],
+
+    "rules": {
+        "callable-types": false,
+        "file-header": [ true, "@license Mozilla Public License, v. 2.0" ],
+        "interface-name": [ "never-prefix" ],
+        "member-ordering": false,
+        "no-any": true,
+        "no-bitwise": false,
+        "no-consecutive-blank-lines": [ true, 2 ],
+        "no-empty-interface": false,
+        "no-string-literal": false,
+        "no-unnecessary-callback-wrapper": true,
+        "object-literal-shorthand": false,
+        "object-literal-sort-keys": false,
+        "prefer-method-signature": true,
+        "quotemark": [ "single", "avoid-escape" ],
+        "trailing-comma": [ true, { "multiline": "never", "singleline": "never" } ],
+        "triple-equals": [ "allow-null-check", "allow-undefined-check" ],
+        "unified-signatures": true,
+        "use-isnan": true,
+        "variable-name": [ "allow-leading-underscore", "ban-keywords", "check-format" ]
+    }
+}

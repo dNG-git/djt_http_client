@@ -1,0 +1,36 @@
+{
+    "name": "djt-http-client",
+    "license": "MPL-2.0",
+    "description": "'djt-http-client' provides an 'fetch' based HTTP client implementation.",
+    "homepage": "https://www.direct-netware.de/redirect?djt;http_client",
+    "version": "1.0.0",
+    "private": true,
+
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/dNG-git/djt_http_client.git"
+    },
+
+    "main": "./lib/cjs/module.js",
+    "module": "./lib/module.js",
+    "types": "./lib/module.d.ts",
+
+    "scripts": {
+        "install-clean": "npm install --no-save",
+        "update": "npm update",
+        "build": "npm run build-lib",
+        "build-lib": "npm run build-lib:es6 && npm run build-lib:cjs",
+        "build-lib:es6": "./node_modules/.bin/tsc",
+        "build-lib:cjs": "./node_modules/.bin/tsc -p tsconfig.cjs.json",
+        "prepare": "npm run build-lib"
+    },
+
+    "dependencies": {
+        "uri-js": "^4.2.1"
+    },
+
+    "devDependencies": {
+        "tslint": "^5.9.1",
+        "typescript": "^2.8.1"
+    }
+}

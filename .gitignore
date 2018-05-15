@@ -1,0 +1,7 @@
+.*
+nbproject
+/_extras
+/dist
+/djt_notification_handler.*
+/lib
+/node_modules

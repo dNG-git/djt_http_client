@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+        "target": "es2015",
+        "lib": [ "dom", "es2015" ],
+        "module": "es2015",
+        "moduleResolution": "node",
+        "outDir": "./lib",
+
+        "declaration": true,
+        "importHelpers": true,
+        "inlineSources": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": false,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "strict": true,
+        "strictNullChecks": false,
+        "sourceMap": true
+    },
+
+    "include": [ "./src/**/*" ]
+}
