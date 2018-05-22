@@ -191,6 +191,48 @@ export class HttpClient {
     }
 
     /**
+     * Sends the request and returns either the response or an timeout error.
+     *
+     * @param request HTTP request to be send
+     * @param additionalRequestArgs Additional request arguments to be applied
+     *
+     * @return Response promise
+     * @since  v1.0.1
+     */
+    // tslint:disable-next-line:no-any
+    protected fetchWithTimeout(request: Request, additionalRequestArgs: any) {
+        return new Promise(
+            (resolve: (value: Response) => void, reject: (reason: Error) => void) => {
+                let timeoutId: number;
+
+                if (typeof AbortController == 'undefined') {
+                    timeoutId = self.setTimeout(
+                        () => { reject(new Error('Timeout occurred')); },
+                        this.timeout
+                    );
+                } else {
+                    const abortController = new AbortController();
+                    additionalRequestArgs['signal'] = abortController.signal;
+
+                    timeoutId = self.setTimeout(
+                        () => { abortController.abort(); },
+                        this.timeout
+                    );
+                }
+
+                fetch(request, additionalRequestArgs)
+                .then(
+                    (response: Response) => {
+                        self.clearTimeout(timeoutId);
+                        resolve(response);
+                    }
+                )
+                .catch(reject);
+            }
+        );
+    }
+
+    /**
      * Returns the corresponding class of the calling instance.
      *
      * @return Class object
@@ -293,7 +335,12 @@ export class HttpClient {
             additionalRequestArgs['body'] = requestArgs.body;
         }
 
-        const response = await fetch(request, additionalRequestArgs);
+        const response = await (
+            (this.timeout > 0)
+            ? this.fetchWithTimeout(request, additionalRequestArgs)
+            : fetch(request, additionalRequestArgs)
+        );
+
         // tslint:disable-next-line:no-any
         const responseHeaders: any = { };
 
