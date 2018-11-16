@@ -33,11 +33,11 @@ export class HttpClient {
     protected static COMPATIBLE_SCHEMES = [ 'http', 'https' ];
 
     /**
-     * Request authorisation username
+     * Request authorization username
      */
     public authUsername: string;
     /**
-     * Request authorisation password
+     * Request authorization password
      */
     protected authPassword: string;
     /**
