@@ -1,7 +1,6 @@
 {
     "defaultSeverity": "warning",
 
-    // TypeScript coding guidelines
     "extends": [ "tslint:recommended" ],
 
     "rules": {
