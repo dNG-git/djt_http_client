@@ -30,7 +30,7 @@ export class HttpClient {
     /**
      * List of supported schemes.
      */
-    protected static COMPATIBLE_SCHEMES = [ 'http', 'https' ];
+    protected static readonly COMPATIBLE_SCHEMES = [ 'http', 'https' ];
 
     /**
      * Request authorization username
@@ -87,16 +87,48 @@ export class HttpClient {
     }
 
     /**
+     * Returns the corresponding class of the calling instance.
+     *
+     * @return Class object
+     * @since  v1.0.0
+     */
+    protected get instanceClass() {
+        return Object.getPrototypeOf(this).constructor;
+    }
+
+    /**
+     * Returns the URL used for all subsequent requests.
+     *
+     * @return URL to be called
+     * @since  v1.0.0
+     */
+    public get url() {
+        return this._requestInstance.url;
+    }
+
+    /**
+     * Sets a new URL used for all subsequent requests.
+     *
+     * @param url URL to be called
+     *
+     * @since v1.0.0
+     */
+    public set url(url: string) {
+        this.configure(url);
+    }
+
+    /**
      * Build a HTTP query string based on the given parameters and the separator.
      *
      * @param params Query parameters object
      * @param separator Query parameter separator
+     * @param _ True if parameters are sent as body payload
      *
-     * @return Response data; Exception on error
+     * @return Formatted query string
      * @since  v1.0.0
      */
     // tslint:disable-next-line:no-any
-    protected buildRequestParameters(params: any = null, separator = ';') {
+    protected buildRequestParameters(params: any = null, separator = ';', _ = false) {
         let _return = null;
 
         if (params) {
@@ -104,7 +136,11 @@ export class HttpClient {
 
             for (const key of Object.keys(params)) {
                 if (typeof params[key] != 'boolean') {
-                    paramsList.push(HttpClient.encode(key) + '=' + HttpClient.encode(params[key]));
+                    paramsList.push(
+                        HttpClient.encode(key)
+                        + '='
+                        + HttpClient.encode(typeof params[key] == 'object' ? params[key].toString() : params[key])
+                    );
                 } else if (params[key]) {
                     paramsList.push(HttpClient.encode(key) + '=1');
                 } else {
@@ -233,16 +269,6 @@ export class HttpClient {
     }
 
     /**
-     * Returns the corresponding class of the calling instance.
-     *
-     * @return Class object
-     * @since  v1.0.0
-     */
-    protected get instanceClass() {
-        return Object.getPrototypeOf(this).constructor;
-    }
-
-    /**
      * Call a given request method on the configured HTTP server.
      *
      * @param method HTTP method
@@ -273,13 +299,7 @@ export class HttpClient {
                         headers.set('Content-Type', 'application/x-www-form-urlencoded');
                     }
 
-                    const bodyArgs = [ ];
-
-                    for (const key of Object.keys(data)) {
-                        bodyArgs.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
-                    }
-
-                    data = bodyArgs.join('&');
+                    data = this.buildRequestParameters(data, '&', true);
                 }
 
                 requestArgs['body'] = data;
@@ -319,10 +339,6 @@ export class HttpClient {
 
             url += requestArgs.params;
 
-            if (!requestArgs.params.endsWith(requestArgs.separator)) {
-                url += requestArgs.separator;
-            }
-
             request = this.configureFromUrl(url);
         } else {
             request = this._requestInstance;
@@ -348,7 +364,7 @@ export class HttpClient {
         if ('forEach' in response.headers) {
             response.headers.forEach(
                 (value: string, name: string) => {
-                    responseHeaders[name.toLowerCase().replace('-', '_')] = value;
+                    responseHeaders[name.toLowerCase().replace(/-/g, '_')] = value;
                 }
             );
         } else if ('entries' in response.headers) {
@@ -356,7 +372,7 @@ export class HttpClient {
             const headers: any = response.headers;
 
             for (const header of headers.entries()) {
-                responseHeaders[header[0].toLowerCase().replace('-', '_')] = header[1];
+                responseHeaders[header[0].toLowerCase().replace(/-/g, '_')] = header[1];
             }
         }
 
@@ -550,27 +566,6 @@ export class HttpClient {
                 this._requestInstance.headers.append(name, entry);
             }
         }
-    }
-
-    /**
-     * Returns the URL used for all subsequent requests.
-     *
-     * @return URL to be called
-     * @since  v1.0.0
-     */
-    public get url() {
-        return this._requestInstance.url;
-    }
-
-    /**
-     * Sets a new URL used for all subsequent requests.
-     *
-     * @param url URL to be called
-     *
-     * @since v1.0.0
-     */
-    public set url(url: string) {
-        this.configure(url);
     }
 
     /**

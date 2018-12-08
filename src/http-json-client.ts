@@ -32,8 +32,6 @@ export class HttpJsonClient extends HttpClient {
      *
      * @param url URL to be called
      * @param timeout Socket timeout
-     * @param returnRawResponse Returns the raw response instead of reading the
-     *        response if true.
      *
      * @since v1.0.0
      */
