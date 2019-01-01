@@ -59,7 +59,13 @@ export class HttpJsonClient extends HttpClient {
                 }
 
                 if (!this._requestInstance.headers.has('content-type')) {
-                    this._requestInstance.headers.set('content-type', 'application/json');
+                    let contentType = 'application/json';
+
+                    if (self.document.characterSet) {
+                        contentType += `; charset=${self.document.characterSet}`;
+                    }
+
+                    this._requestInstance.headers.set( 'content-type', contentType);
                 }
 
                 data = JSON.stringify(data);
