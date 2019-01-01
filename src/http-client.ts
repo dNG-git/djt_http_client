@@ -128,7 +128,7 @@ export class HttpClient {
      * @since  v1.0.0
      */
     // tslint:disable-next-line:no-any
-    protected buildRequestParameters(params: any = null, separator = ';', _ = false) {
+    protected buildRequestParameters(params?: any, separator = ';', _ = false) {
         let _return = null;
 
         if (params) {
@@ -279,8 +279,7 @@ export class HttpClient {
      * @return Response data; 'body' may contain the catched exception
      * @since  v1.0.0
      */
-    // tslint:disable-next-line:no-any
-    public async request(method: string, separator = ';', params?: any, data?: any) {
+    public async request(method: string, separator = ';', params?: unknown, data?: unknown) {
         let _return;
 
         try {
@@ -402,8 +401,7 @@ export class HttpClient {
      * @return Response data; Exception on error
      * @since  v1.0.0
      */
-    // tslint:disable-next-line:no-any
-    public async requestDelete(params: any, separator = ';', data?: any) {
+    public async requestDelete(params?: unknown, separator = ';', data?: unknown) {
         params = this.buildRequestParameters(params, separator);
         return this.request('DELETE', separator, params, data);
     }
@@ -417,8 +415,7 @@ export class HttpClient {
      * @return Response data; Exception on error
      * @since  v1.0.0
      */
-    // tslint:disable-next-line:no-any
-    public async requestGet(params: any, separator = ';') {
+    public async requestGet(params?: unknown, separator = ';') {
         params = this.buildRequestParameters(params, separator);
         return this.request('GET', separator, params);
     }
@@ -432,8 +429,7 @@ export class HttpClient {
      * @return Response data; Exception on error
      * @since  v1.0.0
      */
-    // tslint:disable-next-line:no-any
-    public async requestHead(params: any, separator = ';') {
+    public async requestHead(params?: unknown, separator = ';') {
         params = this.buildRequestParameters(params, separator);
         return this.request('HEAD', separator, params);
     }
@@ -448,8 +444,7 @@ export class HttpClient {
      * @return Response data; Exception on error
      * @since  v1.0.0
      */
-    // tslint:disable-next-line:no-any
-    public async requestPatch(data?: any, params?: any, separator = ';') {
+    public async requestPatch(data?: unknown, params?: unknown, separator = ';') {
         params = this.buildRequestParameters(params, separator);
         return this.request('PATCH', separator, params, data);
     }
@@ -464,8 +459,7 @@ export class HttpClient {
      * @return Response data; Exception on error
      * @since  v1.0.0
      */
-    // tslint:disable-next-line:no-any
-    public async requestPost(data?: any, params?: any, separator = ';') {
+    public async requestPost(data?: unknown, params?: unknown, separator = ';') {
         params = this.buildRequestParameters(params, separator);
         return this.request('POST', separator, params, data);
     }
@@ -480,8 +474,7 @@ export class HttpClient {
      * @return Response data; Exception on error
      * @since  v1.0.0
      */
-    // tslint:disable-next-line:no-any
-    public async requestPut(data?: any, params?: any, separator = ';') {
+    public async requestPut(data?: unknown, params?: unknown, separator = ';') {
         params = this.buildRequestParameters(params, separator);
         return this.request('PUT', separator, params, data);
     }
@@ -496,8 +489,7 @@ export class HttpClient {
      * @return Response data; Exception on error
      * @since  v1.0.0
      */
-    // tslint:disable-next-line:no-any
-    public async requestOptions(params: any, separator = ';', data?: any) {
+    public async requestOptions(params?: unknown, separator = ';', data?: unknown) {
         params = this.buildRequestParameters(params, separator);
         return this.request('OPTIONS', separator, params, data);
     }
@@ -511,8 +503,7 @@ export class HttpClient {
      * @return Response data; Exception on error
      * @since  v1.0.0
      */
-    // tslint:disable-next-line:no-any
-    public async requestTrace(params: any, separator = ';') {
+    public async requestTrace(params?: unknown, separator = ';') {
         params = this.buildRequestParameters(params, separator);
         return this.request('TRACE', separator, params);
     }

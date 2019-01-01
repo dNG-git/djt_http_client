@@ -28,7 +28,7 @@ import { HttpClient } from './http-client';
  */
 export class HttpJsonClient extends HttpClient {
     /**
-     * Constructor (HttpClient)
+     * Constructor (HttpJsonClient)
      *
      * @param url URL to be called
      * @param timeout Socket timeout
@@ -50,8 +50,7 @@ export class HttpJsonClient extends HttpClient {
      * @return Response data; 'body' may contain the catched exception
      * @since  v1.0.0
      */
-    // tslint:disable-next-line:no-any
-    public async request(method: string, separator = ';', params?: any, data?: any) {
+    public async request(method: string, separator = ';', params?: unknown, data?: unknown) {
         if (data) {
             if (data instanceof Object) {
                 if (!this._requestInstance.headers.has('accept')) {
@@ -65,7 +64,7 @@ export class HttpJsonClient extends HttpClient {
                         contentType += `; charset=${self.document.characterSet}`;
                     }
 
-                    this._requestInstance.headers.set( 'content-type', contentType);
+                    this._requestInstance.headers.set('content-type', contentType);
                 }
 
                 data = JSON.stringify(data);
@@ -83,8 +82,7 @@ export class HttpJsonClient extends HttpClient {
      * @return Response data; 'body' may contain the catched Exception
      * @since  v1.0.0
      */
-    // tslint:disable-next-line:no-any
-    protected async _request(method: string, requestArgs: any) {
+    protected async _request(method: string, requestArgs: unknown) {
         const _return = await super._request(method, requestArgs);
 
         if (_return.rawResponse instanceof Response) {
