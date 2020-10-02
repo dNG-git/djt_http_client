@@ -2,6 +2,6 @@
 nbproject
 /_extras
 /dist
-/djt_notification_handler.*
+/djt_http_client.*
 /lib
 /node_modules
