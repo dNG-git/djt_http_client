@@ -14,6 +14,8 @@
  * @license Mozilla Public License, v. 2.0
  */
 
+import { HttpClientQueryParams, HttpClientRequestArgs, HttpClientRequestData } from './http-client-interfaces';
+
 import { HttpClient } from './http-client';
 
 /**
@@ -50,7 +52,7 @@ export class HttpJsonClient extends HttpClient {
      * @return Response data; 'body' may contain the catched exception
      * @since  v1.0.0
      */
-    public async request(method: string, separator = ';', params?: unknown, data?: unknown) {
+    public async request(method: string, separator = ';', params?: HttpClientQueryParams, data?: HttpClientRequestData) {
         if (data) {
             if (data instanceof Object) {
                 if (!this._requestInstance.headers.has('accept')) {
@@ -82,10 +84,11 @@ export class HttpJsonClient extends HttpClient {
      * @return Response data; 'body' may contain the catched Exception
      * @since  v1.0.0
      */
-    protected async _request(method: string, requestArgs: unknown) {
+    protected async _request(method: string, requestArgs: HttpClientRequestArgs) {
         const _return = await super._request(method, requestArgs);
 
         if (_return.rawResponse instanceof Response) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             _return.body = await _return.rawResponse.json();
             delete(_return.rawResponse);
         }

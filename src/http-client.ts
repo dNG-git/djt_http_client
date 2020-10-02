@@ -14,6 +14,8 @@
  * @license Mozilla Public License, v. 2.0
  */
 
+import { HttpClientQueryParams, HttpClientRequestArgs, HttpClientRequestData, HttpClientResponse, MapObject } from './http-client-interfaces';
+
 import { parse as uriParse } from 'uri-js';
 
 /**
@@ -93,6 +95,7 @@ export class HttpClient {
      * @since  v1.0.0
      */
     protected get instanceClass() {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return
         return Object.getPrototypeOf(this).constructor;
     }
 
@@ -127,11 +130,10 @@ export class HttpClient {
      * @return Formatted query string
      * @since  v1.0.0
      */
-    // tslint:disable-next-line:no-any
-    protected buildRequestParameters(params?: any, separator = ';', _ = false) {
+    protected buildRequestParameters(params?: HttpClientQueryParams, separator = ';', _ = false) {
         let _return = null;
 
-        if (params) {
+        if (typeof params != 'string') {
             const paramsList = [ ];
 
             for (const key of Object.keys(params)) {
@@ -139,7 +141,7 @@ export class HttpClient {
                     paramsList.push(
                         HttpClient.encode(key)
                         + '='
-                        + HttpClient.encode(typeof params[key] == 'object' ? params[key].toString() : params[key])
+                        + HttpClient.encode(typeof params[key] == 'object' ? params[key].toString() : params[key] as string)
                     );
                 } else if (params[key]) {
                     paramsList.push(HttpClient.encode(key) + '=1');
@@ -165,6 +167,7 @@ export class HttpClient {
         const urlData = uriParse(url);
         const scheme = (urlData.scheme ? urlData.scheme.toLowerCase() : '');
 
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
         if ((!scheme) || (!this.instanceClass.COMPATIBLE_SCHEMES.includes(scheme)) || (!urlData.host)) {
             throw new Error('Given URL is not an HTTP client compatible resource');
         }
@@ -195,12 +198,10 @@ export class HttpClient {
      * @since  v1.0.0
      */
     protected configureFromUrl(url: string) {
-        // tslint:disable:no-any
-        let cache: any;
-        let credentials: any;
+        let cache: RequestCache;
+        let credentials: RequestCredentials;
         let headers: Headers;
-        let redirect: any;
-        // tslint:enable:no-any
+        let redirect: RequestRedirect;
 
         if (this._requestInstance) {
             cache = this._requestInstance.cache;
@@ -214,16 +215,7 @@ export class HttpClient {
             redirect = 'follow';
         }
 
-        return new Request(
-            url,
-            {
-                cache: cache,
-                credentials: credentials,
-                headers: headers,
-                mode: 'cors',
-                redirect: redirect
-            }
-        );
+        return new Request(url, { cache, credentials, headers, mode: 'cors', redirect });
     }
 
     /**
@@ -235,8 +227,7 @@ export class HttpClient {
      * @return Response promise
      * @since  v1.0.1
      */
-    // tslint:disable-next-line:no-any
-    protected fetchWithTimeout(request: Request, additionalRequestArgs: any) {
+    protected fetchWithTimeout(request: Request, additionalRequestArgs: RequestInit) {
         return new Promise(
             (resolve: (value: Response) => void, reject: (reason: Error) => void) => {
                 let timeoutId: number;
@@ -279,29 +270,31 @@ export class HttpClient {
      * @return Response data; 'body' may contain the catched exception
      * @since  v1.0.0
      */
-    public async request(method: string, separator = ';', params?: unknown, data?: unknown) {
+    public async request(method: string, separator = ';', params?: HttpClientQueryParams, data?: HttpClientRequestData) {
         let _return;
 
         try {
             const headers = this._requestInstance.headers;
-            // tslint:disable-next-line:no-any
-            const requestArgs: any = { headers: headers };
+            const requestArgs: HttpClientRequestArgs = { headers };
 
             if (typeof params == 'string') {
                 requestArgs['params'] = params;
                 requestArgs['separator'] = separator;
             }
 
-            if (data) {
-                if (data instanceof Object) {
-                    if (!headers.has('content-type')) {
-                        headers.set('Content-Type', 'application/x-www-form-urlencoded');
-                    }
-
-                    data = this.buildRequestParameters(data, '&', true);
+            if (
+                (typeof Blob != 'undefined' && data instanceof Blob)
+                || (typeof ArrayBuffer != 'undefined' && data instanceof ArrayBuffer)
+                || (typeof ReadableStream != 'undefined' && data instanceof ReadableStream)
+                || (typeof data == 'string')
+            ) {
+                requestArgs['body'] = data;
+            } else if (data instanceof Object) {
+                if (!headers.has('content-type')) {
+                    headers.set('Content-Type', 'application/x-www-form-urlencoded');
                 }
 
-                requestArgs['body'] = data;
+                requestArgs['body'] = this.buildRequestParameters(data as unknown as HttpClientQueryParams, '&', true);
             }
 
             if (this.authUsername) {
@@ -310,7 +303,8 @@ export class HttpClient {
 
             _return = await this._request(method, requestArgs);
         } catch (handledException) {
-            _return = { code: undefined, headers: undefined, body: handledException };
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            _return = { code: undefined, headers: undefined, body: handledException } as HttpClientResponse;
         }
 
         return _return;
@@ -325,8 +319,7 @@ export class HttpClient {
      * @return Response data; 'body' may contain the catched Exception
      * @since  v1.0.0
      */
-    // tslint:disable-next-line:no-any
-    protected async _request(method: string, requestArgs: any) {
+    protected async _request(method: string, requestArgs: HttpClientRequestArgs) {
         let request;
 
         if (requestArgs.params) {
@@ -343,8 +336,7 @@ export class HttpClient {
             request = this._requestInstance;
         }
 
-        // tslint:disable-next-line:no-any
-        const additionalRequestArgs: any = { method: method, headers: requestArgs.headers };
+        const additionalRequestArgs = { method, headers: requestArgs.headers } as RequestInit;
 
         if (requestArgs.body) {
             additionalRequestArgs['body'] = requestArgs.body;
@@ -356,8 +348,7 @@ export class HttpClient {
             : fetch(request, additionalRequestArgs)
         );
 
-        // tslint:disable-next-line:no-any
-        const responseHeaders: any = { };
+        const responseHeaders = { } as MapObject;
 
         // Good old legacy code strikes here
         if ('forEach' in response.headers) {
@@ -367,16 +358,14 @@ export class HttpClient {
                 }
             );
         } else if ('entries' in response.headers) {
-            // tslint:disable-next-line:no-any
-            const headers: any = response.headers;
+            const headers = response.headers as Map<string, unknown>;
 
             for (const header of headers.entries()) {
                 responseHeaders[header[0].toLowerCase().replace(/-/g, '_')] = header[1];
             }
         }
 
-        // tslint:disable-next-line:no-any
-        const _return: any = { code: response.status, headers: responseHeaders, body: null };
+        const _return: HttpClientResponse = { code: response.status, headers: responseHeaders, body: null };
 
         if (this.returnRawResponse) {
             _return['rawResponse'] = response;
@@ -384,7 +373,7 @@ export class HttpClient {
 
         if (!response.ok) {
             _return.body = new Error(String(response.status) + response.statusText);
-        } else if (method != 'HEAD' && (!this.returnRawResponse)) {
+        } else if (method !== 'HEAD' && (!this.returnRawResponse)) {
             _return.body = await response.blob();
         }
 
@@ -401,7 +390,7 @@ export class HttpClient {
      * @return Response data; Exception on error
      * @since  v1.0.0
      */
-    public async requestDelete(params?: unknown, separator = ';', data?: unknown) {
+    public async requestDelete(params?: HttpClientQueryParams, separator = ';', data?: HttpClientRequestData) {
         params = this.buildRequestParameters(params, separator);
         return this.request('DELETE', separator, params, data);
     }
@@ -415,7 +404,7 @@ export class HttpClient {
      * @return Response data; Exception on error
      * @since  v1.0.0
      */
-    public async requestGet(params?: unknown, separator = ';') {
+    public async requestGet(params?: HttpClientQueryParams, separator = ';') {
         params = this.buildRequestParameters(params, separator);
         return this.request('GET', separator, params);
     }
@@ -429,7 +418,7 @@ export class HttpClient {
      * @return Response data; Exception on error
      * @since  v1.0.0
      */
-    public async requestHead(params?: unknown, separator = ';') {
+    public async requestHead(params?: HttpClientQueryParams, separator = ';') {
         params = this.buildRequestParameters(params, separator);
         return this.request('HEAD', separator, params);
     }
@@ -444,7 +433,7 @@ export class HttpClient {
      * @return Response data; Exception on error
      * @since  v1.0.0
      */
-    public async requestPatch(data?: unknown, params?: unknown, separator = ';') {
+    public async requestPatch(data?: HttpClientRequestData, params?: HttpClientQueryParams, separator = ';') {
         params = this.buildRequestParameters(params, separator);
         return this.request('PATCH', separator, params, data);
     }
@@ -459,7 +448,7 @@ export class HttpClient {
      * @return Response data; Exception on error
      * @since  v1.0.0
      */
-    public async requestPost(data?: unknown, params?: unknown, separator = ';') {
+    public async requestPost(data?: HttpClientRequestData, params?: HttpClientQueryParams, separator = ';') {
         params = this.buildRequestParameters(params, separator);
         return this.request('POST', separator, params, data);
     }
@@ -474,7 +463,7 @@ export class HttpClient {
      * @return Response data; Exception on error
      * @since  v1.0.0
      */
-    public async requestPut(data?: unknown, params?: unknown, separator = ';') {
+    public async requestPut(data?: HttpClientRequestData, params?: HttpClientQueryParams, separator = ';') {
         params = this.buildRequestParameters(params, separator);
         return this.request('PUT', separator, params, data);
     }
@@ -489,7 +478,7 @@ export class HttpClient {
      * @return Response data; Exception on error
      * @since  v1.0.0
      */
-    public async requestOptions(params?: unknown, separator = ';', data?: unknown) {
+    public async requestOptions(params?: HttpClientQueryParams, separator = ';', data?: HttpClientRequestData) {
         params = this.buildRequestParameters(params, separator);
         return this.request('OPTIONS', separator, params, data);
     }
@@ -503,7 +492,7 @@ export class HttpClient {
      * @return Response data; Exception on error
      * @since  v1.0.0
      */
-    public async requestTrace(params?: unknown, separator = ';') {
+    public async requestTrace(params?: HttpClientQueryParams, separator = ';') {
         params = this.buildRequestParameters(params, separator);
         return this.request('TRACE', separator, params);
     }

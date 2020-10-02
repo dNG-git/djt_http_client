@@ -16,3 +16,5 @@
 
 export { HttpClient } from './http-client';
 export { HttpJsonClient } from './http-json-client';
+
+export * from './http-client-interfaces';
