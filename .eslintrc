@@ -1,0 +1,56 @@
+{
+    "parser": "@typescript-eslint/parser",
+
+    "parserOptions": {
+        "ecmaFeatures": { "jsx": true },
+        "project": [ "./tsconfig.json" ]
+    },
+
+    "plugins": [
+        "header",
+        "@typescript-eslint"
+    ],
+
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking"
+    ],
+
+    "rules": {
+        "comma-dangle": "warn",
+        "eqeqeq": [ "error", "smart" ],
+        "header/header": [ "warn", "block", { "pattern": "@license Mozilla Public License, v\\. 2\\.0" } ],
+        "no-bitwise": "warn",
+        "no-duplicate-imports": "warn",
+        "no-multiple-empty-lines": [ "warn", { "max": 2 } ],
+        "no-var": "error",
+        "object-shorthand": "warn",
+        "prefer-const": "warn",
+        "prefer-rest-params": "warn",
+        "prefer-spread": "warn",
+        "quotes": [ "warn", "single", "avoid-escape" ],
+        "semi": [ "error", "always" ],
+        "sort-keys": "warn",
+        "sort-imports": [
+            "warn", { "ignoreCase": true, "memberSyntaxSortOrder": [ "multiple", "single", "all", "none" ] }
+        ],
+        "sort-vars": "warn",
+        "use-isnan": "warn",
+        "@typescript-eslint/ban-ts-comment": "warn",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/member-ordering": "off",
+        "@typescript-eslint/method-signature-style": "warn",
+        "@typescript-eslint/naming-convention": [
+            "error", { "selector": "property", "modifiers": [ "static", "readonly" ], "format": [ "UPPER_CASE" ] }
+        ],
+        "@typescript-eslint/no-empty-interface": "warn",
+        "@typescript-eslint/no-explicit-any": "error",
+        "@typescript-eslint/no-misused-promises": [ "error", { "checksVoidReturn": false } ],
+        "@typescript-eslint/no-unused-vars": [ "warn", { "argsIgnorePattern": "^_" } ],
+        "@typescript-eslint/prefer-function-type": "warn",
+        "@typescript-eslint/unbound-method": [ "warn", { "ignoreStatic": true } ],
+        "@typescript-eslint/unified-signatures": "warn"
+    }
+}
