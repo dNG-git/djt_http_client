@@ -360,7 +360,7 @@ export class HttpClient {
         } else if ('entries' in response.headers) {
             const headers = response.headers as Map<string, unknown>;
 
-            for (const header of headers.entries()) {
+            for (const header in headers.entries()) {
                 responseHeaders[header[0].toLowerCase().replace(/-/g, '_')] = header[1];
             }
         }
