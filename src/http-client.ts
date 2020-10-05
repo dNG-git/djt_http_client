@@ -165,10 +165,10 @@ export class HttpClient {
      */
     protected configure(url: string) {
         const urlData = uriParse(url);
-        const scheme = (urlData.scheme ? urlData.scheme.toLowerCase() : '');
+        const scheme = (urlData.scheme ? urlData.scheme : document.location.protocol.slice(0, -1)).toLowerCase();
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-        if ((!scheme) || (!this.instanceClass.COMPATIBLE_SCHEMES.includes(scheme)) || (!urlData.host)) {
+        if ((!scheme) || (!this.instanceClass.COMPATIBLE_SCHEMES.includes(scheme))) {
             throw new Error('Given URL is not an HTTP client compatible resource');
         }
 
@@ -181,9 +181,21 @@ export class HttpClient {
             this.authPassword = (authData.length > 1 ? authData.slice(1).join(':') : '');
         }
 
-        this.host = urlData.host;
         this.path = (urlData.path ? urlData.path : '/');
-        this.port = (typeof urlData.port == 'number' ? urlData.port : parseInt(urlData.port, 10));
+
+        if (urlData.host) {
+            this.host = urlData.host;
+
+            if (typeof urlData.port == 'number') {
+                this.port = urlData.port;
+            }
+        } else {
+            this.host = document.location.host;
+
+            if (document.location.port !== '') {
+                this.port = parseInt(document.location.port, 10);
+            }
+        }
 
         this._requestInstance = this.configureFromUrl(url);
     }
