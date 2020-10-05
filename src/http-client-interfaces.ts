@@ -19,7 +19,7 @@
  *
  * @since v1.1.0
  */
-export type HttpClientQueryParams = ({ body?: BodyInit, headers?: Headers } & MapObject) | string;
+export type HttpClientQueryParams = MapObject | string;
 
 /**
  * Request arguments for the HTTP client

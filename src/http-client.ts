@@ -130,7 +130,7 @@ export class HttpClient {
      * @return Formatted query string
      * @since  v1.0.0
      */
-    protected buildRequestParameters(params?: HttpClientQueryParams, separator = ';', _ = false) {
+    protected buildRequestParameters(params?: HttpClientQueryParams, separator = ';') {
         let _return = null;
 
         if (typeof params != 'string') {
@@ -337,7 +337,7 @@ export class HttpClient {
                     headers.set('Content-Type', 'application/x-www-form-urlencoded');
                 }
 
-                requestArgs['body'] = this.buildRequestParameters(data as unknown as HttpClientQueryParams, '&', true);
+                requestArgs['body'] = this.buildRequestParameters(data as HttpClientQueryParams, '&');
             }
 
             if (this.authUsername) {
