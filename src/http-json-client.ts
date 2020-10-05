@@ -87,7 +87,11 @@ export class HttpJsonClient extends HttpClient {
      */
     public async request(method: string, separator = ';', params?: HttpClientQueryParams, data?: HttpClientRequestData) {
         if (data) {
-            if (data instanceof Object) {
+            if ((typeof Blob == 'undefined' || (!(data instanceof Blob)))
+                && (typeof ArrayBuffer == 'undefined' || (!(data instanceof ArrayBuffer)))
+                && (typeof ReadableStream == 'undefined' || (!(data instanceof ReadableStream)))
+                && data instanceof Object
+            ) {
                 if (!this._requestInstance.headers.has('accept')) {
                     this._requestInstance.headers.set('accept', 'application/json');
                 }
