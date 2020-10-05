@@ -14,7 +14,7 @@
  * @license Mozilla Public License, v. 2.0
  */
 
-import { HttpClientQueryParams, HttpClientRequestArgs, HttpClientRequestData } from './http-client-interfaces';
+import { HttpClientQueryParams, HttpClientRequestArgs, HttpClientRequestData, HttpClientResponse } from './http-client-interfaces';
 
 import { HttpClient } from './http-client';
 
@@ -42,6 +42,39 @@ export class HttpJsonClient extends HttpClient {
     }
 
     /**
+     * Handles the JSON response received.
+     *
+     * @param response Structured response data object
+     *
+     * @since v1.1.0
+     */
+    protected async handleJsonResponse(response: HttpClientResponse) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        response.body = await response.rawResponse.json();
+        delete(response.rawResponse);
+    }
+
+    /**
+     * Parses the response received and generates a structured response data object.
+     *
+     * @param method HTTP method
+     * @param _ Request arguments to be used
+     * @param response Response received
+     *
+     * @return Response data; 'body' may contain the catched Exception
+     * @since  v1.1.0
+     */
+    protected async newResponse(method: string, requestArgs: HttpClientRequestArgs, response: Response) {
+        const _return = await super.newResponse(method, requestArgs, response);
+
+        if (_return.headers.content_type && ((/application\/json(;|$)/i).test(_return.headers.content_type as string))) {
+            void await this.handleJsonResponse(_return);
+        }
+
+        return _return;
+    }
+
+    /**
      * Call a given request method on the configured HTTP server.
      *
      * @param method HTTP method
@@ -62,8 +95,8 @@ export class HttpJsonClient extends HttpClient {
                 if (!this._requestInstance.headers.has('content-type')) {
                     let contentType = 'application/json';
 
-                    if (self.document.characterSet) {
-                        contentType += `; charset=${self.document.characterSet}`;
+                    if (document.characterSet) {
+                        contentType += `; charset=${document.characterSet}`;
                     }
 
                     this._requestInstance.headers.set('content-type', contentType);
@@ -74,25 +107,5 @@ export class HttpJsonClient extends HttpClient {
         }
 
         return super.request(method, separator, params, data);
-    }
-
-    /**
-     * Sends the request to the configured HTTP server and returns the result.
-     * @param method HTTP method
-     * @param requestArgs Request arguments to be used
-     *
-     * @return Response data; 'body' may contain the catched Exception
-     * @since  v1.0.0
-     */
-    protected async _request(method: string, requestArgs: HttpClientRequestArgs) {
-        const _return = await super._request(method, requestArgs);
-
-        if (_return.rawResponse instanceof Response) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            _return.body = await _return.rawResponse.json();
-            delete(_return.rawResponse);
-        }
-
-        return _return;
     }
 }

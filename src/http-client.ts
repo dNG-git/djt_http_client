@@ -260,6 +260,49 @@ export class HttpClient {
     }
 
     /**
+     * Parses the response received and generates a structured response data object.
+     *
+     * @param method HTTP method
+     * @param _ Request arguments to be used
+     * @param response Response received
+     *
+     * @return Response data; 'body' may contain the catched Exception
+     * @since  v1.1.0
+     */
+    protected async newResponse(method: string, _: HttpClientRequestArgs, response: Response) {
+        const responseHeaders = { } as MapObject;
+
+        // Good old legacy code strikes here
+        if ('forEach' in response.headers) {
+            response.headers.forEach(
+                (value: string, name: string) => {
+                    responseHeaders[name.toLowerCase().replace(/-/g, '_')] = value;
+                }
+            );
+        } else if ('entries' in response.headers) {
+            const headers = response.headers as Map<string, unknown>;
+
+            for (const header in headers.entries()) {
+                responseHeaders[header[0].toLowerCase().replace(/-/g, '_')] = header[1];
+            }
+        }
+
+        const _return: HttpClientResponse = { code: response.status, headers: responseHeaders, body: null };
+
+        if (this.returnRawResponse) {
+            _return['rawResponse'] = response;
+        }
+
+        if (!response.ok) {
+            _return.body = new Error(String(response.status) + response.statusText);
+        } else if (method !== 'HEAD' && (!this.returnRawResponse)) {
+            _return.body = await response.blob();
+        }
+
+        return _return;
+    }
+
+    /**
      * Call a given request method on the configured HTTP server.
      *
      * @param method HTTP method
@@ -348,36 +391,7 @@ export class HttpClient {
             : fetch(request, additionalRequestArgs)
         );
 
-        const responseHeaders = { } as MapObject;
-
-        // Good old legacy code strikes here
-        if ('forEach' in response.headers) {
-            response.headers.forEach(
-                (value: string, name: string) => {
-                    responseHeaders[name.toLowerCase().replace(/-/g, '_')] = value;
-                }
-            );
-        } else if ('entries' in response.headers) {
-            const headers = response.headers as Map<string, unknown>;
-
-            for (const header in headers.entries()) {
-                responseHeaders[header[0].toLowerCase().replace(/-/g, '_')] = header[1];
-            }
-        }
-
-        const _return: HttpClientResponse = { code: response.status, headers: responseHeaders, body: null };
-
-        if (this.returnRawResponse) {
-            _return['rawResponse'] = response;
-        }
-
-        if (!response.ok) {
-            _return.body = new Error(String(response.status) + response.statusText);
-        } else if (method !== 'HEAD' && (!this.returnRawResponse)) {
-            _return.body = await response.blob();
-        }
-
-        return _return;
+        return await this.newResponse(method, requestArgs, response);
     }
 
     /**
