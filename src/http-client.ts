@@ -287,6 +287,7 @@ export class HttpClient {
             }
         }
 
+        // eslint-disable-next-line sort-keys
         const _return: HttpClientResponse = { code: response.status, headers: responseHeaders, body: null };
 
         if (this.returnRawResponse) {
@@ -346,7 +347,7 @@ export class HttpClient {
 
             _return = await this._request(method, requestArgs);
         } catch (handledException) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            // eslint-disable-next-line sort-keys, @typescript-eslint/no-unsafe-assignment
             _return = { code: undefined, headers: undefined, body: handledException } as HttpClientResponse;
         }
 
@@ -379,6 +380,7 @@ export class HttpClient {
             request = this._requestInstance;
         }
 
+        // eslint-disable-next-line sort-keys
         const additionalRequestArgs = { method, headers: requestArgs.headers } as RequestInit;
 
         if (requestArgs.body) {
