@@ -131,9 +131,9 @@ export class HttpClient {
      * @since  v1.0.0
      */
     protected buildRequestParameters(params?: HttpClientQueryParams, separator = ';') {
-        let _return = null;
+        let _return;
 
-        if (typeof params != 'string') {
+        if (params && typeof params != 'string') {
             const paramsList = [ ];
 
             for (const key of Object.keys(params)) {
