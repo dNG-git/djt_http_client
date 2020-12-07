@@ -585,6 +585,6 @@ export class HttpClient {
      * @since  v1.0.0
      */
     protected static encode(value: string) {
-        return encodeURIComponent(value).replace('%20', '+');
+        return encodeURIComponent(value).replace(/%20/g, '+');
     }
 }
